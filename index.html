@@ -92,7 +92,7 @@
         .product-img, .product-packshot { -webkit-touch-callout:none; }
 
 </style>
-<meta name="catalog-version" content="20260912-pricefix-v2">
+<meta name="catalog-version" content="20260922-iphone17-400-600-iphone18-whitefix-v1">
 </head>
 <body>
 
@@ -154,7 +154,7 @@
         <p><strong>GlobalTech Wholesale</strong> is an independent electronics catalog for wholesale product inquiries.</p>
         <p>We are not affiliated with, sponsored by, or endorsed by Apple Inc. or other manufacturers unless explicitly stated. Product names and trademarks belong to their respective owners.</p>
         <p>Prices, stock, warranty, shipping, payment and return terms should be confirmed before placing an order.</p>
-        <p><strong>Image note:</strong> Product visuals are locally hosted white-background catalog photography-style images prepared for this site. They are not official manufacturer photographs.</p>
+        <p><strong>Image note:</strong> Product visuals are white-background catalog reference images used for product identification; appearance may vary by configuration.</p>
         <p class="policy-links"><a href="about.html">About</a> · <a href="contact.html">Contact</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="shipping.html">Shipping</a> · <a href="returns.html">Returns</a></p>
     </section>
 
@@ -301,24 +301,24 @@
             ]},
             // ==================== iPhone 17 ====================
             { model:"iPhone 17 Pro Max", category:"iPhone", img:"", skus:[
-                { capacity:"256GB", version:"Standard", color:"Natural Titanium", priceUsd:204, priceEur:189 },
-                { capacity:"512GB", version:"Standard", color:"Blue Titanium", priceUsd:224, priceEur:207 },
-                { capacity:"1TB", version:"Standard", color:"Black Titanium", priceUsd:258, priceEur:239 },
-                { capacity:"2TB", version:"Standard", color:"White Titanium", priceUsd:326, priceEur:302 }
+                { capacity:"256GB", version:"Standard", color:"Natural Titanium", priceUsd:480, priceEur:442 },
+                { capacity:"512GB", version:"Standard", color:"Blue Titanium", priceUsd:520, priceEur:478 },
+                { capacity:"1TB", version:"Standard", color:"Black Titanium", priceUsd:560, priceEur:515 },
+                { capacity:"2TB", version:"Standard", color:"White Titanium", priceUsd:600, priceEur:552 }
             ]},
             { model:"iPhone 17 Pro", category:"iPhone", img:"", skus:[
-                { capacity:"256GB", version:"Standard", color:"Natural Titanium", priceUsd:170, priceEur:157 },
-                { capacity:"512GB", version:"Standard", color:"Blue Titanium", priceUsd:190, priceEur:176 },
-                { capacity:"1TB", version:"Standard", color:"Black Titanium", priceUsd:218, priceEur:201 }
+                { capacity:"256GB", version:"Standard", color:"Natural Titanium", priceUsd:450, priceEur:414 },
+                { capacity:"512GB", version:"Standard", color:"Blue Titanium", priceUsd:500, priceEur:460 },
+                { capacity:"1TB", version:"Standard", color:"Black Titanium", priceUsd:550, priceEur:506 }
             ]},
             { model:"iPhone 17 Air", category:"iPhone", img:"", skus:[
-                { capacity:"256GB", version:"Standard", color:"Blue", priceUsd:163, priceEur:151 },
-                { capacity:"512GB", version:"Standard", color:"Green", priceUsd:184, priceEur:170 },
-                { capacity:"1TB", version:"Standard", color:"Pink", priceUsd:211, priceEur:196 }
+                { capacity:"256GB", version:"Standard", color:"Blue", priceUsd:430, priceEur:396 },
+                { capacity:"512GB", version:"Standard", color:"Green", priceUsd:470, priceEur:432 },
+                { capacity:"1TB", version:"Standard", color:"Pink", priceUsd:520, priceEur:478 }
             ]},
             { model:"iPhone 17", category:"iPhone", img:"", skus:[
-                { capacity:"256GB", version:"Standard", color:"Blue", priceUsd:128, priceEur:118 },
-                { capacity:"512GB", version:"Standard", color:"Green", priceUsd:150, priceEur:138 }
+                { capacity:"256GB", version:"Standard", color:"Blue", priceUsd:400, priceEur:368 },
+                { capacity:"512GB", version:"Standard", color:"Green", priceUsd:450, priceEur:414 }
             ]},
             // ==================== iPhone 16 ====================
             { model:"iPhone 16 Pro Max", category:"iPhone", img:"", skus:[
@@ -723,7 +723,7 @@
 
         // iPhone generation price positioning:
         // Newer generation keeps premium pricing, older generations stay cheaper.
-        // iPhone 17 series: +50%
+        // iPhone 17 series: exact prices locked separately in the $400–$600 range
         // iPhone 16 series: -40%
         // iPhone 15 series: -50%
         function applyIphoneGenerationPricing() {
@@ -733,9 +733,7 @@
                 const name = product.model || '';
                 let multiplier = 1;
 
-                if (/iPhone 17/i.test(name)) {
-                    multiplier = 1.5;
-                } else if (/iPhone 16/i.test(name)) {
+                if (/iPhone 16/i.test(name)) {
                     multiplier = 0.6;
                 } else if (/iPhone 15/i.test(name)) {
                     multiplier = 0.5;
@@ -750,6 +748,27 @@
             });
         }
         applyIphoneGenerationPricing();
+
+        // FINAL iPhone 17 PRICE LOCK — keeps every existing iPhone 17 SKU in the requested $400–$600 range.
+        function lockIPhone17Prices() {
+            const exact17 = {
+                'iPhone 17 Pro Max': {'256GB':480, '512GB':520, '1TB':560, '2TB':600},
+                'iPhone 17 Pro': {'256GB':450, '512GB':500, '1TB':550},
+                'iPhone 17 Air': {'256GB':430, '512GB':470, '1TB':520},
+                'iPhone 17': {'256GB':400, '512GB':450}
+            };
+
+            productsData.forEach(product => {
+                const priceMap = exact17[product.model];
+                if (!priceMap) return;
+                product.skus.forEach(sku => {
+                    if (priceMap[sku.capacity] == null) return;
+                    sku.priceUsd = priceMap[sku.capacity];
+                    sku.priceEur = Math.round(sku.priceUsd * 0.92);
+                });
+            });
+        }
+        lockIPhone17Prices();
 
         // FINAL EXACT PRICE LOCK — runs after every legacy pricing rule.
         // This is the final source used by the UI, WhatsApp and GA4.
@@ -796,15 +815,33 @@
         }
         const PRODUCT_SPRITES = {"iPhone Duo":{"src":"assets/sprites/sprite-01.webp","cols":2,"rows":2,"x":0,"y":0},"iPhone 18 Pro Max":{"src":"assets/sprites/sprite-01.webp","cols":2,"rows":2,"x":100,"y":0},"iPhone 18 Pro":{"src":"assets/sprites/sprite-01.webp","cols":2,"rows":2,"x":0,"y":100},"iPhone 17 Pro Max":{"src":"assets/sprites/sprite-01.webp","cols":2,"rows":2,"x":100,"y":100},"iPhone 17 Pro":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":0,"y":0},"iPhone 17 Air":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":50,"y":0},"iPhone 17":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":100,"y":0},"iPhone 16 Pro Max":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":0,"y":50},"iPhone 16 Pro":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":50,"y":50},"iPhone 16 Plus":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":100,"y":50},"iPhone 16":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":0,"y":100},"iPhone 15 Pro Max":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":50,"y":100},"iPhone 15 Pro":{"src":"assets/sprites/sprite-02.webp","cols":3,"rows":3,"x":100,"y":100},"iPhone 15":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":0,"y":0},"MacBook Pro 16\" M4 Max":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":50,"y":0},"MacBook Pro 14\" M4 Pro":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":100,"y":0},"MacBook Air 15\" M4":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":0,"y":50},"MacBook Air 13\" M4":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":50,"y":50},"iPad Pro 13\" M4":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":100,"y":50},"iPad Pro 11\" M4":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":0,"y":100},"iPad Air M2 11\"":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":50,"y":100},"iPad Mini 6":{"src":"assets/sprites/sprite-03.webp","cols":3,"rows":3,"x":100,"y":100},"Watch Ultra 2":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":0,"y":0},"Watch Series 10":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":50,"y":0},"AirPods Pro 2":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":100,"y":0},"AirPods Max":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":0,"y":50},"Ray-Ban Meta Wayfarer":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":50,"y":50},"Ray-Ban Meta Headliner":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":100,"y":50},"Ray-Ban Meta Skyler":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":0,"y":100},"PS5 Slim":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":50,"y":100},"PS5 Pro":{"src":"assets/sprites/sprite-04.webp","cols":3,"rows":3,"x":100,"y":100},"DJI Mavic 3 Pro":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":0,"y":0},"DJI Mini 4 Pro":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":50,"y":0},"DJI Mini 5 Pro":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":100,"y":0},"DJI Osmo Pocket 3":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":0,"y":50},"DJI Osmo Pocket 4":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":50,"y":50},"Logitech G923":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":100,"y":50},"Nintendo Switch 2":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":0,"y":100},"Nintendo Switch":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":50,"y":100},"RTX 5090":{"src":"assets/sprites/sprite-05.webp","cols":3,"rows":3,"x":100,"y":100},"RTX 5080":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":0,"y":0},"RTX 5070 Ti":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":50,"y":0},"RTX 5070":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":100,"y":0},"RTX 5060 Ti":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":0,"y":50},"RTX 5060":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":50,"y":50},"RTX 5050":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":100,"y":50},"RTX 4090":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":0,"y":100},"RTX 4080 Super":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":50,"y":100},"RTX 4070 Ti Super":{"src":"assets/sprites/sprite-06.webp","cols":3,"rows":3,"x":100,"y":100},"RTX 4070 Super":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":0,"y":0},"RTX 4060 Ti":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":50,"y":0},"RTX 4060":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":100,"y":0},"RX 7900 XTX":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":0,"y":50},"RX 7900 XT":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":50,"y":50},"RX 7800 XT":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":100,"y":50},"RX 7700 XT":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":0,"y":100},"RX 7600":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":50,"y":100},"Dyson Supersonic HD08":{"src":"assets/sprites/sprite-07.webp","cols":3,"rows":3,"x":100,"y":100},"Dyson Airwrap HS05":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":0,"y":0},"Dyson V15 Detect":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":50,"y":0},"Dyson V12 Detect Slim":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":100,"y":0},"Insta360 X5":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":0,"y":50},"Insta360 X4":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":50,"y":50},"Insta360 GO 3S":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":100,"y":50},"Insta360 GO Ultra":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":0,"y":100},"MacBook Air 13\" M5":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":50,"y":100},"MacBook Air 15\" M5":{"src":"assets/sprites/sprite-08.webp","cols":3,"rows":3,"x":100,"y":100},"iPad Pro 11\" M5":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":0,"y":0},"iPad Pro 13\" M5":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":50,"y":0},"iPad Air 11\" M4":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":100,"y":0},"iPad Air 13\" M4":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":0,"y":50},"AirPods 5":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":50,"y":50},"Apple Watch Series 12":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":100,"y":50},"Apple Watch Ultra 4":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":0,"y":100},"Apple Watch Series 11":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":50,"y":100},"Apple Watch Ultra 3":{"src":"assets/sprites/sprite-09.webp","cols":3,"rows":3,"x":100,"y":100},"Apple Watch SE 3":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":0,"y":0},"Samsung Galaxy Watch8":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":50,"y":0},"Samsung Galaxy Watch8 Classic":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":100,"y":0},"Samsung Galaxy Watch Ultra 2025":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":0,"y":50},"Ray-Ban Meta Low Bridge Fit Headliner":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":50,"y":50},"Ray-Ban Meta Blayzer Optics":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":100,"y":50},"Ray-Ban Meta Scriber Optics":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":0,"y":100},"Meta Ray-Ban Display":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":50,"y":100},"Oakley Meta HSTN":{"src":"assets/sprites/sprite-10.webp","cols":3,"rows":3,"x":100,"y":100},"Oakley Meta Vanguard":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":0,"y":0},"DJI Mavic 4 Pro":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":50,"y":0},"DJI Air 3S":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":100,"y":0},"DJI Flip":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":0,"y":50},"DJI Neo 2":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":50,"y":50},"DJI Avata 2":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":100,"y":50},"DJI Osmo Action 6":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":0,"y":100},"DJI Osmo Action 5 Pro":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":50,"y":100},"DJI Osmo 360":{"src":"assets/sprites/sprite-11.webp","cols":3,"rows":3,"x":100,"y":100},"DJI Osmo Nano":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":0,"y":0},"DJI Osmo Pocket 4P":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":50,"y":0},"Insta360 X6":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":100,"y":0},"Insta360 Luna Ultra":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":0,"y":50},"Insta360 X4 Air":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":50,"y":50},"Insta360 Ace Pro 2":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":100,"y":50},"Insta360 Flow 2 Pro":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":0,"y":100},"Insta360 Link 2 Pro":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":50,"y":100},"Insta360 Link 2C Pro":{"src":"assets/sprites/sprite-12.webp","cols":3,"rows":3,"x":100,"y":100},"Dyson Supersonic Nural":{"src":"assets/sprites/sprite-13.webp","cols":2,"rows":1,"x":0,"y":0},"Dyson Airwrap i.d.":{"src":"assets/sprites/sprite-13.webp","cols":2,"rows":1,"x":100,"y":0}};
         const CATEGORY_IMAGE_FALLBACKS = {};
-        const REMOTE_MODEL_IMAGES = {};
+        const REMOTE_MODEL_IMAGES = {
+            "iPhone Duo": "https://boutique.underside.be/web/image/product.product/17872/image_1024/iPhone%20Duo%20%28Blanc%20stellaire%2C%20256%20Go%29?unique=fc96a8d",
+            "iPhone 18 Pro Max": "https://boutique.underside.be/web/image/product.product/17895/image_1024/iPhone%2018%20Pro%20Max%20%28Argent%2C%20256%20Go%29?unique=7b925a2",
+            "iPhone 18 Pro": "https://boutique.underside.be/web/image/product.product/17860/image_1024/iPhone%2018%20Pro%20%28Argent%2C%20256%20Go%29?unique=4431349"
+        };
+        const REMOTE_MODEL_IMAGE_FALLBACKS = {
+            "iPhone Duo": "https://www.apple.com/newsroom/images/2026/09/apple-unveils-iphone-duo/article/Apple-iPhone-Duo-colors-260909_big.jpg.large.jpg",
+            "iPhone 18 Pro Max": "https://www.apple.com/newsroom/images/2026/09/apple-debuts-iphone-18-pro-and-iphone-18-pro-max/article/Apple-iPhone-18-Pro-color-lineup-260909_big.jpg.large.jpg",
+            "iPhone 18 Pro": "https://www.apple.com/newsroom/images/2026/09/apple-debuts-iphone-18-pro-and-iphone-18-pro-max/article/Apple-iPhone-18-Pro-color-lineup-260909_big.jpg.large.jpg"
+        };
 
         function createImageHtml(product, productIndex = 0) {
+            const safeAlt = String(product.model).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            const remoteImage = REMOTE_MODEL_IMAGES[product.model] || product.img || '';
+            if (remoteImage) {
+                const fallbackRemote = REMOTE_MODEL_IMAGE_FALLBACKS[product.model] || '';
+                const onError = fallbackRemote
+                    ? `this.onerror=null;this.src='${fallbackRemote}'`
+                    : `this.onerror=null;this.src='${makePlaceholderSvg(product.model)}'`;
+                return `<img src="${remoteImage}" alt="${safeAlt}" class="product-img" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="${onError}">`;
+            }
+
             const item = PRODUCT_SPRITES[product.model];
             if (!item) {
                 const fallback = makePlaceholderSvg(product.model);
-                return `<img src="${fallback}" alt="${product.model}" class="product-img" loading="lazy" decoding="async">`;
+                return `<img src="${fallback}" alt="${safeAlt}" class="product-img" loading="lazy" decoding="async">`;
             }
-            const safeAlt = String(product.model).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             const bgSize = `${item.cols * 100}% ${item.rows * 100}%`;
             return `<div class="product-packshot" role="img" aria-label="${safeAlt}" style="background-image:url('${item.src}');background-size:${bgSize};background-position:${item.x}% ${item.y}%;"></div>`;
         }
